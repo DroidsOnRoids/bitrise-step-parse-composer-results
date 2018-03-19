@@ -1,0 +1,42 @@
+title: |-
+  Parse Composer results
+summary: |
+  Parse Composer results
+description: |
+  Parse Composer results
+website: https://github.com/DroidsOnRoids/bitrise-step-parse-composer-results
+source_code_url: https://github.com/DroidsOnRoids/bitrise-step-parse-composer-results
+support_url: https://github.com/DroidsOnRoids/bitrise-step-parse-composer-results/issues
+host_os_tags:
+  - osx-10.10
+  - ubuntu-16.04
+
+type_tags:
+  - test
+
+is_requires_admin_user: false
+is_always_run: false
+is_skippable: false
+run_if: ""
+
+toolkit:
+  go:
+    package_name: github.com/DroidsOnRoids/bitrise-step-parse-composer-results
+
+outputs:
+  - ALL_TEST_COUNT:
+    opts:
+      title: "Example Step Output"
+      summary: Summary. No more than 2-3 sentences.
+      description: |
+        Description of this output.
+
+        Can be Markdown formatted text.
+  - PASSED_TEST_COUNT:
+    opts:
+      title: "Example Step Output"
+      summary: Summary. No more than 2-3 sentences.
+      description: |
+        Description of this output.
+
+        Can be Markdown formatted text.
