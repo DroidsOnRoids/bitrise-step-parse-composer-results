@@ -24,7 +24,7 @@ func main() {
 	allTestCount := 0
 	passedTestCount := 0
 
-	workdir := os.Getenv("BITRISE_SOURCE_DIR")
+	workdir := os.Getenv("results_dir")
 	err := filepath.Walk(workdir, func(path string, info os.FileInfo, err error) error {
 		isMatchedReportFile, err := regexp.MatchString("reports/composer/.*/junit4-reports/.*\\.xml", path)
 		if err != nil {
