@@ -1,17 +1,59 @@
-format_version: 4
+format_version: "4"
 default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
-
+project_type: ""
 app:
   envs:
-  # An example secret param, define it (A_SECRET_PARAM) in .bitrise.secrets.yml
-  - A_SECRET_PARAM: $A_SECRET_PARAM
-  # If you want to share this step into a StepLib
   - BITRISE_STEP_ID: parse-composer-results
-  - BITRISE_STEP_VERSION: "0.0.1"
-  - BITRISE_STEP_GIT_CLONE_URL: https://github.com/DroidsOnRoids/bitrise-step-parse-composer-results
+  - BITRISE_STEP_VERSION: 0.0.1
+  - BITRISE_STEP_GIT_CLONE_URL: https://github.com/DroidsOnRoids/bitrise-step-parse-composer-results.git
   - MY_STEPLIB_REPO_FORK_GIT_URL: $MY_STEPLIB_REPO_FORK_GIT_URL
-
 workflows:
+  audit-this-step:
+    steps:
+    - script:
+        inputs:
+        - content: |-
+            #!/bin/bash
+            set -ex
+            stepman audit --step-yml ./step.yml
+  share-this-step:
+    description: |-
+      If this is the first time you try to share a Step you should
+      first call: $ bitrise share
+
+      This will print you a guide, and information about how Step sharing
+      works. Please read it at least once!
+
+      As noted in the Step sharing guide you'll have to fork the
+      StepLib you want to share this step into. Once you're done with forking
+      the repository you should set your own fork's git clone URL
+      in the `.bitrise.secrets.yml` file, or here in the `envs` section,
+      as the value of the `MY_STEPLIB_REPO_FORK_GIT_URL` environment.
+
+      You're now ready to share this Step, just make sure that
+      the `BITRISE_STEP_ID` and `BITRISE_STEP_VERSION`
+      environments are set to the desired values!
+
+      To share this Step into a StepLib you can just run: $ bitrise run share-this-step
+
+      Once it finishes the only thing left is to actually create a Pull Request,
+      the way described in the guide printed at the end of the process.
+    before_run:
+    - audit-this-step
+    envs:
+    - MY_STEPLIB_REPO_FORK_GIT_URL: $MY_STEPLIB_REPO_FORK_GIT_URL
+    - BITRISE_STEP_ID: $BITRISE_STEP_ID
+    - BITRISE_STEP_VERSION: $BITRISE_STEP_VERSION
+    - BITRISE_STEP_GIT_CLONE_URL: $BITRISE_STEP_GIT_CLONE_URL
+    steps:
+    - script:
+        inputs:
+        - content: |-
+            #!/bin/bash
+            set -ex
+            bitrise share start -c "${MY_STEPLIB_REPO_FORK_GIT_URL}"
+            bitrise share create --stepid "${BITRISE_STEP_ID}" --tag "${BITRISE_STEP_VERSION}" --git "${BITRISE_STEP_GIT_CLONE_URL}"
+            bitrise share finish
   test:
     steps:
     - script:
@@ -47,56 +89,76 @@ workflows:
         title: Go test
         inputs:
         - content: go test
-
-
-
-  # ----------------------------------------------------------------
-  # --- workflows to Share this step into a Step Library
-  audit-this-step:
-    steps:
+    - change-workdir:
+        title: Switch working dir to test / _tmp dir
+        description: |-
+          To prevent step testing issues, like referencing relative
+          files with just './some-file' in the step's code, which would
+          work for testing the step from this directory directly
+          but would break if the step is included in another `bitrise.yml`.
+        run_if: "true"
+        inputs:
+        - path: ./_tmp
+        - is_create_path: true
     - script:
+        title: Create test files
         inputs:
         - content: |-
-            #!/bin/bash
+            #!/usr/bin/env bash
             set -ex
-            stepman audit --step-yml ./step.yml
 
-  share-this-step:
-    envs:
-      # if you want to share this step into a StepLib
-      - MY_STEPLIB_REPO_FORK_GIT_URL: $MY_STEPLIB_REPO_FORK_GIT_URL
-      - BITRISE_STEP_ID: $BITRISE_STEP_ID
-      - BITRISE_STEP_VERSION: $BITRISE_STEP_VERSION
-      - BITRISE_STEP_GIT_CLONE_URL: $BITRISE_STEP_GIT_CLONE_URL
-    description: |-
-      If this is the first time you try to share a Step you should
-      first call: $ bitrise share
+            mkdir -p app/build/reports/composer/stagingDebug/junit4-reports
 
-      This will print you a guide, and information about how Step sharing
-      works. Please read it at least once!
+            cat > app/build/reports/composer/stagingDebug/junit4-reports/device.xml << EOF
+            <?xml version="1.0" encoding="UTF-8"?>
+            <testsuite name="pl.droidsonroids.bitrise.staging.debug.test" tests="4" failures="1" errors="1" skipped="1" time="7.063" timestamp="2018-02-24T19:15:18" hostname="localhost">
+            <properties/>
+            <testcase classname="pl.droidsonroids.bitrise.DummyTest" name="shouldPass" time="4.012"/>
+            </testsuite>
+            EOF
 
-      As noted in the Step sharing guide you'll have to fork the
-      StepLib you want to share this step into. Once you're done with forking
-      the repository you should set your own fork's git clone URL
-      in the `.bitrise.secrets.yml` file, or here in the `envs` section,
-      as the value of the `MY_STEPLIB_REPO_FORK_GIT_URL` environment.
-
-      You're now ready to share this Step, just make sure that
-      the `BITRISE_STEP_ID` and `BITRISE_STEP_VERSION`
-      environments are set to the desired values!
-
-      To share this Step into a StepLib you can just run: $ bitrise run share-this-step
-
-      Once it finishes the only thing left is to actually create a Pull Request,
-      the way described in the guide printed at the end of the process.
-    before_run:
-    - audit-this-step
-    steps:
+            cat > app/build/reports/composer/stagingDebug/junit4-reports/emulator.xml << EOF
+            <?xml version="1.0" encoding="UTF-8"?>
+            <testsuite name="pl.droidsonroids.bitrise.staging.debug.test" tests="4" failures="0" errors="0" skipped="0" time="7.063" timestamp="2018-02-24T19:15:18" hostname="localhost">
+            <properties/>
+            <testcase classname="pl.droidsonroids.bitrise.DummyTest" name="shouldPass" time="4.012"/>
+            </testsuite>
+            EOF
+    - path::./:
+        title: Step run
     - script:
+        title: Output assertions
+        inputs:
+        - content: |
+            #!/usr/bin/env bash
+            set -e
+
+            if (( $ALL_TEST_COUNT != 8 )); then
+               echo "Invalid all test count. Expected: 8, actual: $ALL_TEST_COUNT"
+               exit 1
+            fi
+
+            if (( $PASSED_TEST_COUNT != 5 )); then
+               echo "Invalid passed test count. Expected: 5, actual: $PASSED_TEST_COUNT"
+               exit 2
+            fi
+    - path::./:
+        title: Step run, empty results
+        inputs:
+        - results_dir: /dev/null
+    - script:
+        title: Empty output assertions
         inputs:
         - content: |-
-            #!/bin/bash
-            set -ex
-            bitrise share start -c "${MY_STEPLIB_REPO_FORK_GIT_URL}"
-            bitrise share create --stepid "${BITRISE_STEP_ID}" --tag "${BITRISE_STEP_VERSION}" --git "${BITRISE_STEP_GIT_CLONE_URL}"
-            bitrise share finish
+            #!/usr/bin/env bash
+            set -e
+
+            if (( $ALL_TEST_COUNT != 0 )); then
+               echo "Invalid all test count. Expected: 0, actual: $ALL_TEST_COUNT"
+               exit 1
+            fi
+
+            if (( $PASSED_TEST_COUNT != 0 )); then
+               echo "Invalid passed test count. Expected: 0, actual: $PASSED_TEST_COUNT"
+               exit 2
+            fi
