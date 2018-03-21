@@ -53,12 +53,12 @@ func main() {
 		os.Exit(1)
 	}
 
-	if err = exportEnvironmentWithEnvman("ALL_TEST_COUNT", strconv.Itoa(allTestCount)); err != nil {
+	if err = exportEnvironmentWithEnvman("COMPOSER_ALL_TEST_COUNT", strconv.Itoa(allTestCount)); err != nil {
 		log.Errorf("Environment export error: %s", err)
 		os.Exit(2)
 	}
 
-	if err = exportEnvironmentWithEnvman("PASSED_TEST_COUNT", strconv.Itoa(passedTestCount)); err != nil {
+	if err = exportEnvironmentWithEnvman("COMPOSER_PASSED_TEST_COUNT", strconv.Itoa(passedTestCount)); err != nil {
 		log.Errorf("Environment export error: %s", err)
 		os.Exit(3)
 	}
