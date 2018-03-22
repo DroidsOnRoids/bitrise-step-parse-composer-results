@@ -4,7 +4,7 @@ project_type: ""
 app:
   envs:
   - BITRISE_STEP_ID: parse-composer-results
-  - BITRISE_STEP_VERSION: 0.0.1
+  - BITRISE_STEP_VERSION: 0.0.2
   - BITRISE_STEP_GIT_CLONE_URL: https://github.com/DroidsOnRoids/bitrise-step-parse-composer-results.git
   - MY_STEPLIB_REPO_FORK_GIT_URL: $MY_STEPLIB_REPO_FORK_GIT_URL
 workflows:
@@ -133,13 +133,13 @@ workflows:
             #!/usr/bin/env bash
             set -e
 
-            if (( $ALL_TEST_COUNT != 8 )); then
-               echo "Invalid all test count. Expected: 8, actual: $ALL_TEST_COUNT"
+            if (( $COMPOSER_ALL_TEST_COUNT != 8 )); then
+               echo "Invalid all test count. Expected: 8, actual: $COMPOSER_ALL_TEST_COUNT"
                exit 1
             fi
 
-            if (( $PASSED_TEST_COUNT != 5 )); then
-               echo "Invalid passed test count. Expected: 5, actual: $PASSED_TEST_COUNT"
+            if (( $COMPOSER_PASSED_TEST_COUNT != 5 )); then
+               echo "Invalid passed test count. Expected: 5, actual: $COMPOSER_PASSED_TEST_COUNT"
                exit 2
             fi
     - path::./:
@@ -153,12 +153,12 @@ workflows:
             #!/usr/bin/env bash
             set -e
 
-            if (( $ALL_TEST_COUNT != 0 )); then
-               echo "Invalid all test count. Expected: 0, actual: $ALL_TEST_COUNT"
+            if (( $COMPOSER_ALL_TEST_COUNT != 0 )); then
+               echo "Invalid all test count. Expected: 0, actual: $COMPOSER_ALL_TEST_COUNT"
                exit 1
             fi
 
-            if (( $PASSED_TEST_COUNT != 0 )); then
-               echo "Invalid passed test count. Expected: 0, actual: $PASSED_TEST_COUNT"
+            if (( $COMPOSER_PASSED_TEST_COUNT != 0 )); then
+               echo "Invalid passed test count. Expected: 0, actual: $COMPOSER_PASSED_TEST_COUNT"
                exit 2
             fi

@@ -2,10 +2,10 @@ title: |-
   Parse Composer test results
 summary: |
   Parses Composer junit test results and stores them in environment variables.
-  `$ALL_TEST_COUNT` and `$PASSED_TEST_COUNT` respectively.
+  `$COMPOSER_ALL_TEST_COUNT` and `$COMPOSER_PASSED_TEST_COUNT` respectively.
 description: |
   Parses [Composer](https://github.com/gojuno/composer) junit test results and stores them in environment variables:
-    `$ALL_TEST_COUNT` and `$PASSED_TEST_COUNT` respectively.
+    `$COMPOSER_ALL_TEST_COUNT` and `$COMPOSER_PASSED_TEST_COUNT` respectively.
 website: https://github.com/DroidsOnRoids/bitrise-step-parse-composer-results
 source_code_url: https://github.com/DroidsOnRoids/bitrise-step-parse-composer-results
 support_url: https://github.com/DroidsOnRoids/bitrise-step-parse-composer-results/issues
@@ -35,11 +35,11 @@ inputs:
       is_required: false
 
 outputs:
-  - ALL_TEST_COUNT:
+  - COMPOSER_ALL_TEST_COUNT:
     opts:
       title: "All test count"
       summary: All test count. Passed, failed, skipped and errored. Sum across all found files.
-  - PASSED_TEST_COUNT:
+  - COMPOSER_PASSED_TEST_COUNT:
     opts:
       title: "Passed test count (excluding skipped)"
       summary: Passed test count (excluding skipped ones). Sum across all found files.
